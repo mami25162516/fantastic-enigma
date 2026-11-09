@@ -1,54 +1,29 @@
-package com.example.jarvis;
+name: JARVIS APK
 
-import android.app.*;
-import android.os.*;
-import android.graphics.Color;
-import android.view.Gravity;
-import android.widget.*;
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
-public class MainActivity extends Activity {
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-    LinearLayout layout;
-    EditText mesaj;
-    TextView sohbet;
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-    @Override
-    public void onCreate(Bundle b) {
-        super.onCreate(b);
+      - uses: android-actions/setup-android@v3
 
-        layout = new LinearLayout(this);
-        layout.setOrientation(1);
-        layout.setPadding(25,25,25,25);
-        layout.setBackgroundColor(Color.rgb(5,12,28));
+      - name: Build APK
+        run: gradle assembleDebug
 
-        TextView baslik = new TextView(this);
-        baslik.setText("J.A.R.V.I.S.");
-        baslik.setTextSize(30);
-        baslik.setTextColor(Color.CYAN);
-        baslik.setGravity(Gravity.CENTER);
-        layout.addView(baslik);
-
-        sohbet = new TextView(this);
-        sohbet.setText("JARVIS hazır. Size nasıl yardımcı olabilirim?");
-        sohbet.setTextColor(Color.WHITE);
-        sohbet.setTextSize(18);
-        layout.addView(sohbet);
-
-        mesaj = new EditText(this);
-        mesaj.setHint("JARVIS'e yaz...");
-        layout.addView(mesaj);
-
-        Button gonder = new Button(this);
-        gonder.setText("GÖNDER");
-        layout.addView(gonder);
-
-        gonder.setOnClickListener(v -> {
-            String m = mesaj.getText().toString();
-            sohbet.append("\\n\\nSen: " + m);
-            sohbet.append("\\nJARVIS: Mesajını aldım.");
-            mesaj.setText("");
-        });
-
-        setContentView(layout);
-    }
-}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-APK
+          path: app/build/outputs/apk/debug/*.apk
+        
